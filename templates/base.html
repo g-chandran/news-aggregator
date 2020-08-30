@@ -6,7 +6,19 @@
   <title>Batch 7 - News Aggregator</title>
 </head>
 <body>
-  <header><a href="{% url 'home' %}">News Aggregator</a></header>
+  <header>
+  <div class="nav-left">
+  <a href="{% url 'home' %}">News Aggregator</a></header>
+  </div>
+  <div class="nav-right">
+  {% if user.is_authenticated %}
+    <p>Hello 
+      <a href="{% url 'logout' %}">{{ user.username.title }}</a>
+    </p>
+  {% else %}
+    <a href="{% url 'login' %}">Login</a>
+  {% endif %}
+  </div>
   <div>
   {% block content %}
   {% endblock content %}
