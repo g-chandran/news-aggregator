@@ -62,7 +62,6 @@ def aggregator(request):
           a = Article.objects.create(subscription_name=i, published=pubTime, title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
           a.save()
     print(f"{i.name} done")
-            # print(f"{i.name}\nPublished at: {pubTime}\nTitle: {title}\nLink: {link}\nID: {iD}\nAuthor: {author}\nSummary: {summary}\nMedia Link: {media}\n")
   print('Completed!')
   return render(request, 'aggregator.html')
 
@@ -78,5 +77,5 @@ class HomeListView(ListView):
     model = Article
     template_name = "home.html"
     ordering = ['-id']
-    paginate_by = 5
+    paginate_by = 10
     context_object_name = 'allData'

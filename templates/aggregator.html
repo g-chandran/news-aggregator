@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1><a href="{% url 'aggregator' %}">Update Now</a></h1>
+  <div class="container-sm">
+    <p>The page is made for scraping content from sites. This won't affect the usage.</p>
+    <p>It will be updated every 10 minutes to crawl pages. Use the link below to make the crawl right now.</p>
+    <h1><a href="{% url 'aggregator' %}" class="btn btn-outline-info mb-4">Update Now</a></h1>
+  </div>
   <script>
     setTimeout(function(){
       window.location.reload(1);
