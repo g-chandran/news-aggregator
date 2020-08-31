@@ -29,6 +29,7 @@ class Article(models.Model):
   author = models.CharField(default=' ', max_length=100)
   summary = models.CharField(default=' ', max_length=500)
   media = models.ImageField(upload_to='images/')
+  article_id = models.CharField(max_length=200, unique=True)
 
   def __str__(self):
     return self.subscription_name.name + "'s Article"
