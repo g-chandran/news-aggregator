@@ -1,12 +1,12 @@
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, ListView
 from django.contrib.auth.forms import UserCreationForm
+from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.views import generic 
 from .models import Subscription, Article
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 import feedparser as fp
-import csv
 from bs4 import BeautifulSoup
 
 class HomePageView(TemplateView):
@@ -23,17 +23,13 @@ def summaryMaker(originalText):
   return originalText
 
 def aggregator(request):
-  csv_file = open('final.csv', 'w')
-  csv_writer = csv.writer(csv_file)
-  csv_writer.writerow(['Published', 'Subscription', 'Title',
-                     'Link', 'ID', 'Author', 'Summary', 'Media'])
   subscriptions = Subscription.objects.all()
   for i in subscriptions:
     feed = fp.parse(i.feed_link)
     if feed.entries[0].published != i.last_updated:
       i.last_updated = feed.entries[0].published
       i.save()
-      print('Updating')
+      print('Updating ' + str(i.name))
       for j in feed.entries:
         if Article.objects.filter(article_id=j.id).count() == 0:
           pubTime = j.published
@@ -63,14 +59,24 @@ def aggregator(request):
                 media = htmlToText.find('img')['src']
               except Exception as e:
                 media = i.thumbnail
-          a = Article.objects.create(subscription_name=i, published=pubTime, title=title, author=author, summary=summary, media=media, article_id=iD)
+          a = Article.objects.create(subscription_name=i, published=pubTime, title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
           a.save()
-          csv_writer.writerow(
-              [pubTime, i.name, title, link, iD, author, summary, media])
-    else:
-      print('No need to update ' + str(i.name))
     print(f"{i.name} done")
             # print(f"{i.name}\nPublished at: {pubTime}\nTitle: {title}\nLink: {link}\nID: {iD}\nAuthor: {author}\nSummary: {summary}\nMedia Link: {media}\n")
-  csv_file.close()
   print('Completed!')
-  return render(request, 'home.html')
+  return render(request, 'aggregator.html')
+
+def homeListView(request):
+  allData = Article.objects.order_by('-id')
+  paginator = Paginator(allData, 5)  # Show 25 contacts per page.
+  page_number = request.GET.get('page')
+  page_obj = paginator.get_page(page_number)
+  
+  return render(request, 'home.html', {'allData': page_obj})
+
+class HomeListView(ListView):
+    model = Article
+    template_name = "home.html"
+    ordering = ['-id']
+    paginate_by = 5
+    context_object_name = 'allData'

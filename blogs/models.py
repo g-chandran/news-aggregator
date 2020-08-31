@@ -6,18 +6,10 @@ from PIL import Image
 
 class Subscription(models.Model):
   name = models.CharField(max_length=30)
-  thumbnail = models.ImageField(upload_to='images/')
+  thumbnail = models.URLField()
   last_updated = models.CharField(max_length=35)
-  site_link = models.CharField(max_length=100)
-  feed_link = models.CharField(max_length=100)
-
-  def save(self):
-    super().save()
-    img = Image.open(self.thumbnail.path)  
-    if img.height > 300 or img.width > 300:
-      new_img = (500, 500)
-      img.thumbnail(new_img)
-      img.save(self.thumbnail.path)
+  site_link = models.URLField()
+  feed_link = models.URLField()
 
   def __str__(self):
     return self.name
@@ -28,8 +20,9 @@ class Article(models.Model):
   title = models.CharField(max_length=300)
   author = models.CharField(default=' ', max_length=100)
   summary = models.CharField(default=' ', max_length=500)
-  media = models.ImageField(upload_to='images/')
+  media = models.URLField()
   article_id = models.CharField(max_length=200, unique=True)
+  article_link = models.URLField()
 
   def __str__(self):
-    return self.subscription_name.name + "'s Article"
+    return f"{self.subscription_name.name}: {self.title}"

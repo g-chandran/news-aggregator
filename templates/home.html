@@ -1,5 +1,46 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>Hey Hi, welcome. I'm justing testing out the webpage! Site under work</h1>
-<a href="{% url 'aggregator' %}">Test</a>
+<div class="container-sm">
+  {% for data in allData %}
+    <br>
+    <div class="container-sm media border rounded" style="padding:20px">
+    <br>
+      <img src="{{data.media}}" class="align-self-start mr-3" alt="{{data.title}}" width=184 height=111>
+      <div class="media-body">
+        <h5 class="mt-0"><a href="{{data.article_link}}" target="_blank">{{data.title}}</a></h5>
+        {% if data.author == ' ' %}
+          <h6>{{data.subscription_name.name}}</h6>
+        {% else %}
+          <h6>{{data.author}} from {{data.subscription_name.name}}</h6>
+        {% endif %}
+        <p>{{data.summary}}</p>
+      </div>
+    </div>
+  {% endfor %}
+
+  <br>
+
+  {% if is_paginated %}
+
+    {% if page_obj.has_previous %}
+      <a class="btn btn-outline-info mb-4" href="?page=1">First</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      {% if page_obj.number == num %}
+        <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+      {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+      {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.next_page_number }}">Next</a>
+      <a class="btn btn-outline-info mb-4" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+    {% endif %}
+
+  {% endif %}
+</div>
+
 {% endblock content %}
