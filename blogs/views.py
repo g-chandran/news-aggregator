@@ -30,7 +30,10 @@ def aggregator(request):
   subscriptions = Subscription.objects.all()
   for i in subscriptions:
     feed = fp.parse(i.feed_link)
-    if feed.entries[0] != i.last_updated:
+    if feed.entries[0].published != i.last_updated:
+      i.last_updated = feed.entries[0].published
+      i.save()
+      print('Updating')
       for j in feed.entries:
         if Article.objects.filter(article_id=j.id).count() == 0:
           pubTime = j.published
@@ -60,8 +63,12 @@ def aggregator(request):
                 media = htmlToText.find('img')['src']
               except Exception as e:
                 media = i.thumbnail
+          a = Article.objects.create(subscription_name=i, published=pubTime, title=title, author=author, summary=summary, media=media, article_id=iD)
+          a.save()
           csv_writer.writerow(
               [pubTime, i.name, title, link, iD, author, summary, media])
+    else:
+      print('No need to update ' + str(i.name))
     print(f"{i.name} done")
             # print(f"{i.name}\nPublished at: {pubTime}\nTitle: {title}\nLink: {link}\nID: {iD}\nAuthor: {author}\nSummary: {summary}\nMedia Link: {media}\n")
   csv_file.close()
