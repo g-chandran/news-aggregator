@@ -12,9 +12,7 @@
       <div class="media-body">
         <h5 class="mt-0"><a href="{{data.article_link}}" target="_blank">{{data.title}}</a></h5>
         {% if data.author != ' ' %}
-          <h6>by {{data.author}} <small> at {{data.published}}</small></h6>
-        {% else %}
-          <small>{{data.published}}</small>
+          <h6>by {{data.author}}</h6>
         {% endif %}
         <p>{{data.summary}}</p>
       </div>
