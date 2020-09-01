@@ -5,9 +5,12 @@ from django.urls import reverse_lazy
 from django.views import generic 
 from .models import Subscription, Article
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 import feedparser as fp
 from bs4 import BeautifulSoup
+from dateutil.parser import parse as p
+import datetime as dt
+import pytz
 
 class HomePageView(TemplateView):
   template_name = "home.html"
@@ -23,13 +26,15 @@ def summaryMaker(originalText):
   return originalText
 
 def aggregator(request):
+  updateList = []
   subscriptions = Subscription.objects.all()
   for i in subscriptions:
     feed = fp.parse(i.feed_link)
-    if feed.entries[0].published != i.last_updated:
-      i.last_updated = feed.entries[0].published
+    if p(feed.entries[0].published) != i.last_updated:
+      i.last_updated = p(feed.entries[0].published)
       i.save()
       print('Updating ' + str(i.name))
+      updateList.append(i.name)
       for j in feed.entries:
         if Article.objects.filter(article_id=j.id).count() == 0:
           pubTime = j.published
@@ -59,11 +64,13 @@ def aggregator(request):
                 media = htmlToText.find('img')['src']
               except Exception as e:
                 media = i.thumbnail
-          a = Article.objects.create(subscription_name=i, published=pubTime, title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
+          a = Article.objects.create(subscription_name=i, published=p(pubTime), title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
           a.save()
     print(f"{i.name} done")
   print('Completed!')
-  return render(request, 'aggregator.html')
+  current_time = dt.datetime.now(pytz.timezone('UTC'))
+  indian_time = current_time.astimezone(pytz.timezone('Asia/Kolkata'))
+  return render(request, 'aggregator.html', {'now': indian_time, 'month': indian_time.strftime("%B"), 'updateList': updateList})
 
 def homeListView(request):
   allData = Article.objects.order_by('-id')
@@ -76,6 +83,16 @@ def homeListView(request):
 class HomeListView(ListView):
     model = Article
     template_name = "home.html"
-    ordering = ['-id']
-    paginate_by = 10
+    ordering = ['-published']
+    paginate_by = 20
     context_object_name = 'allData'
+
+class SubscriptionListView(ListView):
+  model = Article
+  template_name = 'subscription.html'
+  paginate_by = 20
+
+  def get_queryset(self):
+    article = get_object_or_404(Article, )
+    queryResults = Article.objects.filter()
+    return super().get_queryset()

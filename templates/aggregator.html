@@ -3,11 +3,19 @@
   <div class="container-sm">
     <p>The page is made for scraping content from sites. This won't affect the usage.</p>
     <p>It will be updated every 10 minutes to crawl pages. Use the link below to make the crawl right now.</p>
+    {% if updateList %}
+      {% for update in updateList %}
+        <h4>Updated {{update}}</h4>
+      {% endfor %}
+    {% else %}
+      <h4>No Updates</h4>
+    {% endif %}
+    <small>Last Updated at {{month}} {{now.day}}, {{now.year}} at {{now.hour}}:{{now.minute}} </small>
     <h1><a href="{% url 'aggregator' %}" class="btn btn-outline-info mb-4">Update Now</a></h1>
   </div>
   <script>
     setTimeout(function(){
       window.location.reload(1);
-    }, 1000 * 600);
+    }, 1000 * 60 * 10);
   </script>
 {% endblock content %}

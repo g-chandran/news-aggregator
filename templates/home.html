@@ -5,13 +5,15 @@
     <br>
     <div class="container-sm media border rounded" style="padding:20px">
     <br>
-      <img src="{{data.media}}" class="align-self-start mr-3" alt="{{data.title}}" width=184 height=111>
+      <a href="{{data.subscription_name.site_link}}">
+        <img src="{{data.media}}" class="align-self-start mr-3" alt="{{data.title}}" width=184 height=111>
+      </a>
       <div class="media-body">
         <h5 class="mt-0"><a href="{{data.article_link}}" target="_blank">{{data.title}}</a></h5>
         {% if data.author == ' ' %}
-          <h6>{{data.subscription_name.name}}</h6>
+          <small>{{data.subscription_name.name}}</small>
         {% else %}
-          <h6>{{data.author}} from {{data.subscription_name.name}}</h6>
+          <small>{{data.author}} from {{data.subscription_name.name}}</small>
         {% endif %}
         <p>{{data.summary}}</p>
       </div>

@@ -7,7 +7,7 @@ from PIL import Image
 class Subscription(models.Model):
   name = models.CharField(max_length=30)
   thumbnail = models.URLField()
-  last_updated = models.CharField(max_length=35)
+  last_updated = models.DateTimeField()
   site_link = models.URLField()
   feed_link = models.URLField()
 
@@ -16,7 +16,7 @@ class Subscription(models.Model):
 
 class Article(models.Model):
   subscription_name = models.ForeignKey(to=Subscription, on_delete=models.CASCADE)
-  published = models.CharField(max_length=35)
+  published = models.DateTimeField()
   title = models.CharField(max_length=300)
   author = models.CharField(default=' ', max_length=100)
   summary = models.CharField(default=' ', max_length=500)
