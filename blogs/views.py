@@ -3,14 +3,17 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.paginator import Paginator
 from django.urls import reverse_lazy
 from django.views import generic 
-from .models import Subscription, Article
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.mixins import LoginRequiredMixin
+
 import feedparser as fp
 from bs4 import BeautifulSoup
 from dateutil.parser import parse as p
 import datetime as dt
 import pytz
+
+from .models import Subscription, Article, Profile
 
 class HomePageView(TemplateView):
   template_name = "home.html"
@@ -64,35 +67,49 @@ def aggregator(request):
                 media = htmlToText.find('img')['src']
               except Exception as e:
                 media = i.thumbnail
-          a = Article.objects.create(subscription_name=i, published=p(pubTime), title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
+          converted_time = p(pubTime).astimezone(pytz.timezone('Asia/KolKata'))
+          a = Article.objects.create(subscription_name=i, published=converted_time, title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
           a.save()
     print(f"{i.name} done")
   print('Completed!')
   current_time = dt.datetime.now(pytz.timezone('UTC'))
   indian_time = current_time.astimezone(pytz.timezone('Asia/Kolkata'))
-  return render(request, 'aggregator.html', {'now': indian_time, 'month': indian_time.strftime("%B"), 'updateList': updateList})
-
-def homeListView(request):
-  allData = Article.objects.order_by('-id')
-  paginator = Paginator(allData, 5)  # Show 25 contacts per page.
-  page_number = request.GET.get('page')
-  page_obj = paginator.get_page(page_number)
-  
-  return render(request, 'home.html', {'allData': page_obj})
+  return render(request, 'aggregator.html', {'now': indian_time, 'updateList': updateList, 'month': indian_time.strftime("%B")})
 
 class HomeListView(ListView):
-    model = Article
-    template_name = "home.html"
-    ordering = ['-published']
-    paginate_by = 20
-    context_object_name = 'allData'
+  model = Article
+  template_name = "home.html"
+  paginate_by = 20
+  context_object_name = 'allData'
+
+  def get_queryset(self):
+    if self.request.user.is_authenticated:
+      subs = Profile.objects.filter(name=self.request.user)
+      lister = []
+      for sub in subs:
+        lister.append(sub.subscription)
+      return Article.objects.filter(subscription_name__in=lister).order_by('-published')
+    else:
+      return Article.objects.all().order_by('-published')
 
 class SubscriptionListView(ListView):
   model = Article
   template_name = 'subscription.html'
   paginate_by = 20
+  context_object_name = 'allData'
+  
+  def get_queryset(self):
+    subs = get_object_or_404(Subscription, name=self.kwargs.get('name'))
+    return Article.objects.filter(subscription_name=subs).order_by('-published')
+
+class ProfileView(LoginRequiredMixin, ListView):
+  model = Profile
+  template_name = 'profile.html'
+  context_object_name = 'profiles'
 
   def get_queryset(self):
-    article = get_object_or_404(Article, )
-    queryResults = Article.objects.filter()
-    return super().get_queryset()
+    return Profile.objects.filter(name=self.request.user).order_by('subscription')
+
+def profileView(request):
+  allSubscriptions = Subscription.objects.all()
+  return render(request, 'profile.html', {'profiles': allSubscriptions})

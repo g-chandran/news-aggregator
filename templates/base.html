@@ -22,13 +22,24 @@ body {
       </ul>
       <div class="navbar-nav ml-auto">
         {% if user.is_authenticated %}
-          <a href="{% url 'logout' %}" class="nav-link ml-auto">Logout</a>
+          {% if request.path == '/profile/' %}
+            <a href="{% url 'logout' %}" class="nav-link ml-auto">Logout</a>
+            {% else %}
+            <a href="{% url 'profile' %}" class="nav-link ml-auto">Profile</a>
+          {% endif %}
         {% else %}
           <a href="{% url 'login' %}" class="nav-link">Login</a>
         {% endif %}
       </div>
     </nav>
-    <div>
+    <div class="container-sm">
+      {% if user.is_authenticated == False %}
+        <div class="text-center">
+          <legend>
+            <a class="btn btn-outline-info mb-4 mx-auto" href="{% url 'login' %}">Login to customize the feed</a> 
+          </legend>
+        </div>
+      {% endif %}
       {% block content %}
       {% endblock content %}
     </div>
