@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import generic 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 import feedparser as fp
 from bs4 import BeautifulSoup
@@ -20,7 +20,7 @@ class HomePageView(TemplateView):
 
 class SignupView(generic.CreateView):
   form_class = UserCreationForm
-  success_url = reverse_lazy('home')
+  success_url = reverse_lazy('login')
   template_name = 'signup.html'
 
 def summaryMaker(originalText):
@@ -102,14 +102,36 @@ class SubscriptionListView(ListView):
     subs = get_object_or_404(Subscription, name=self.kwargs.get('name'))
     return Article.objects.filter(subscription_name=subs).order_by('-published')
 
-class ProfileView(LoginRequiredMixin, ListView):
-  model = Profile
-  template_name = 'profile.html'
-  context_object_name = 'profiles'
-
-  def get_queryset(self):
-    return Profile.objects.filter(name=self.request.user).order_by('subscription')
-
+@login_required
 def profileView(request):
   allSubscriptions = Subscription.objects.all()
-  return render(request, 'profile.html', {'profiles': allSubscriptions})
+  profile = Profile.objects.filter(name=request.user)
+  lister=[]
+  for pr in  profile:
+    lister.append(pr.subscription.name)
+  context = {'subscriptions': allSubscriptions, 'profiles': lister}
+  return render(request, 'profile.html', context)
+
+@login_required
+def addProfile(request, id):
+  allSubscriptions = Subscription.objects.all()
+  sub = get_object_or_404(Subscription, id=id)
+  p = Profile.objects.create(name=request.user, subscription=sub)
+  p.save()
+  profile = Profile.objects.filter(name=request.user)
+  lister = []
+  for pr in profile:
+    lister.append(pr.subscription.name)
+  return render(request, 'profile.html', {'subscriptions': allSubscriptions, 'profiles': lister})
+
+@login_required
+def removeProfile(request, id):
+  sub = get_object_or_404(Subscription, id=id)
+  p=Profile.objects.filter(name=request.user, subscription=sub).delete()
+  allSubscriptions = Subscription.objects.all()
+  # p.delete()
+  profile = Profile.objects.filter(name=request.user)
+  lister = []
+  for pr in profile:
+    lister.append(pr.subscription.name)
+  return render(request, 'profile.html', {'subscriptions': allSubscriptions, 'profiles': lister})

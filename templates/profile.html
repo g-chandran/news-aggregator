@@ -5,9 +5,36 @@
   <div style="margin-top:20px, width:50%;" class="container-sm border rounded">
     <br>
     <h3>Hello {{user.username|title}},</h3>
-    {% for profile in profiles %}
-      <p>{{profile.subscription.name}}</p>
-    {% endfor %}
+    {% comment %} {% for subs in subscriptions %}
+      {% if subs.name in profiles %}
+        <p><a href="{% url 'remove-profile' subs.id %}">Remove</a> {{subs.name}}</p>
+      {% else %}
+        <p><a href="{% url 'add-profile' subs.id %}">Add</a> {{subs.name}}</p>
+      {% endif %}
+    {% endfor %} {% endcomment %}
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Source</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+        {% for subs in subscriptions %}
+          {% if subs.name in profiles %}
+            <tr>
+              <th>{{subs.name}}</th>
+              <th><a href="{% url 'remove-profile' subs.id %}" class="btn btn-outline-danger mb-4">Remove</a></th>
+            </tr>
+            {% else %}
+            <tr>
+              <th>{{subs.name}}</th>
+              <th><a href="{% url 'add-profile' subs.id %}" class="btn btn-outline-success mb-4">Add</a></th>
+            </tr>
+          {% endif %}
+        {% endfor %}
+    </table>
+    <a href="{% url 'home' %}" class="btn btn-outline-info mb-4">Go to home</a>
   </div>
 {% endif %}
 {% endblock content %}
