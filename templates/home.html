@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block content %}
 <div>
   {% if allData.count == 0 %}
@@ -17,10 +18,10 @@
         <h5 class="mt-0"><a href="{{data.article_link}}" target="_blank">{{data.title}}</a></h5>
         {% if data.author == ' ' %}
           <div>
-            <h6><a href="{% url 'subscription' data.subscription_name.name %}">{{data.subscription_name.name}}</a></h6>
+            <h6><a href="{% url 'subscription' data.subscription_name.name %}">{{data.subscription_name.name}} </a><small>{{data.published|naturaltime}}</small></h6>
           </div>
         {% else %}
-          <h6>{{data.author}} from <a href="{% url 'subscription' data.subscription_name.name %}">{{data.subscription_name.name}}</a></h6>
+          <h6>{{data.author}} from <a href="{% url 'subscription' data.subscription_name.name %}">{{data.subscription_name.name}} </a><small>{{data.published|naturaltime}}</small></h6>
         {% endif %}
         <p>{{data.summary}}</p>
       </div>

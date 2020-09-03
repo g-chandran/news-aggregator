@@ -2,7 +2,7 @@
 {% block content %}
   <div class="container-sm">
     <p>The page is made for scraping content from sites. This determines the updates to the site</p>
-    <p>It will be updated every 10 minutes to parse data. Use the link below to make the parse right now.</p>
+    <p>It will be updated <b>every 10 minutes automatically</b> to parse data. Use the link below to make the parse right now.</p>
     {% if updateList %}
       {% for update in updateList %}
         <h4>Updated {{update}}</h4>

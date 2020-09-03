@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize %}
 {% block content %}
 <div class="container-sm">
   <legend>{{page_obj.paginator.count}} posts from {{view.kwargs.name}}</legend>
@@ -12,7 +13,9 @@
       <div class="media-body">
         <h5 class="mt-0"><a href="{{data.article_link}}" target="_blank">{{data.title}}</a></h5>
         {% if data.author != ' ' %}
-          <h6>by {{data.author}}</h6>
+          <h6>by {{data.author}} <small>{{data.published|naturaltime}}</small></h6>
+        {% else %}
+          <small>{{data.published|naturaltime}}</small>
         {% endif %}
         <p>{{data.summary}}</p>
       </div>
