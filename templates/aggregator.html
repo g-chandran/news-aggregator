@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load tz %}
 {% block content %}
   <div class="container-sm">
     <p>The page is made for scraping content from sites. This determines the updates to the site</p>
@@ -10,7 +11,9 @@
     {% else %}
       <h4>No Updates</h4>
     {% endif %}
-    <small>Last Updated at {{month}} {{now.day}}, {{now.year}} at {{now.hour}}:{{now.minute}} </small>
+    {% timezone "Asia/Kolkata" %}
+    <small>Last Updated at {% now "SHORT_DATETIME_FORMAT" %} </small>
+    {% endtimezone %}
     <h1><a href="{% url 'aggregator' %}" class="btn btn-outline-info mb-4">Update Now</a></h1>
   </div>
   <script>

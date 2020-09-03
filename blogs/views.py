@@ -71,10 +71,7 @@ def aggregator(request):
           a = Article.objects.create(subscription_name=i, published=converted_time, title=title, author=author, summary=summary, media=media, article_id=iD, article_link=link)
           a.save()
     print(f"{i.name} done")
-  print('Completed!')
-  current_time = dt.datetime.now(pytz.timezone('UTC'))
-  indian_time = current_time.astimezone(pytz.timezone('Asia/Kolkata'))
-  return render(request, 'aggregator.html', {'now': indian_time, 'updateList': updateList, 'month': indian_time.strftime("%B")})
+  return render(request, 'aggregator.html', {'updateList': updateList,})
 
 class HomeListView(ListView):
   model = Article
